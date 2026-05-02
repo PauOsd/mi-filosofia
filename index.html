@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Filosofía Diaria</title>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#0a0a0f"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --gold: #c9a84c;
+      --gold-dim: #8a6f32;
+      --text: #e8e0d0;
+      --text-dim: #7a7060;
+      --accent: #2a2a3a;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      overflow: hidden;
+    }
+
+    /* Fondo con estrellas */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(201,168,76,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 70%, rgba(201,168,76,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 40%, rgba(201,168,76,0.25) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 85%, rgba(201,168,76,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 15%, rgba(201,168,76,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 20% 55%, rgba(255,255,255,0.1) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 25%, rgba(255,255,255,0.1) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.08) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Viñeta */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      gap: 0;
+    }
+
+    /* Línea decorativa superior */
+    .ornament {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.2s forwards;
+    }
+    .ornament-line {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold-dim));
+    }
+    .ornament-line.right {
+      background: linear-gradient(to left, transparent, var(--gold-dim));
+    }
+    .ornament-diamond {
+      width: 6px;
+      height: 6px;
+      background: var(--gold);
+      transform: rotate(45deg);
+    }
+
+    .day-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    /* Tarjeta principal */
+    .card {
+      width: 100%;
+      max-width: 520px;
+      text-align: center;
+      opacity: 0;
+      animation: fadeUp 1.2s ease 0.5s forwards;
+    }
+
+    .quote {
+      font-size: clamp(1.4rem, 5vw, 2rem);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.65;
+      color: var(--text);
+      letter-spacing: 0.01em;
+      margin-bottom: 2rem;
+    }
+
+    .quote::before { content: '\201C'; color: var(--gold-dim); }
+    .quote::after  { content: '\201D'; color: var(--gold-dim); }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .divider-line {
+      width: 40px;
+      height: 1px;
+      background: var(--gold-dim);
+      opacity: 0.5;
+    }
+    .divider-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      opacity: 0.6;
+    }
+
+    .author {
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .author-detail {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    /* Botón de notificación */
+    .notif-section {
+      margin-top: 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      opacity: 0;
+      animation: fadeUp 1.2s ease 0.9s forwards;
+    }
+
+    .btn-notif {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: transparent;
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.75rem 1.75rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-notif::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gold);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .btn-notif:hover::before { opacity: 0.08; }
+    .btn-notif:hover { border-color: var(--gold); }
+    .btn-notif span { position: relative; }
+
+    .notif-status {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+    }
+    .notif-status.ok { color: var(--gold-dim); }
+
+    /* Número del día */
+    .day-counter {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--text-dim);
+      opacity: 0;
+      animation: fadeUp 1s ease 1.2s forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 4rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface);
+      border: 1px solid var(--gold-dim);
+      color: var(--text);
+      font-size: 0.8rem;
+      padding: 0.6rem 1.4rem;
+      opacity: 0;
+      transition: all 0.4s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="ornament">
+    <div class="ornament-line"></div>
+    <div class="ornament-diamond"></div>
+    <span class="day-label" id="fecha"></span>
+    <div class="ornament-diamond"></div>
+    <div class="ornament-line right"></div>
+  </div>
+
+  <div class="card">
+    <p class="quote" id="quote-text">Cargando...</p>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-dot"></div>
+      <div class="divider-line"></div>
+    </div>
+    <p class="author" id="quote-author"></p>
+    <p class="author-detail" id="quote-detail"></p>
+  </div>
+
+  <div class="notif-section">
+    <button class="btn-notif" id="btn-notif" onclick="activarNotificaciones()">
+      <span>✦ Activar notificación diaria</span>
+    </button>
+    <p class="notif-status" id="notif-status">Recibe una frase cada día a las 00:00</p>
+  </div>
+
+</div>
+
+<div class="day-counter" id="day-counter"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const FRASES = [
+  { text: "Conócete a ti mismo.", author: "Sócrates", detail: "Filósofo griego · s. V a.C." },
+  { text: "Solo sé que no sé nada.", author: "Sócrates", detail: "Filósofo griego · s. V a.C." },
+  { text: "El hombre es la medida de todas las cosas.", author: "Protágoras", detail: "Sofista griego · s. V a.C." },
+  { text: "La felicidad depende de nosotros mismos.", author: "Aristóteles", detail: "Filósofo griego · 384–322 a.C." },
+  { text: "Somos lo que hacemos repetidamente. La excelencia, entonces, no es un acto, sino un hábito.", author: "Aristóteles", detail: "Filósofo griego · 384–322 a.C." },
+  { text: "El conocimiento es la única cosa buena; la ignorancia, el único mal.", author: "Sócrates", detail: "Filósofo griego · s. V a.C." },
+  { text: "Todo fluye, nada permanece.", author: "Heráclito", detail: "Filósofo griego · s. VI–V a.C." },
+  { text: "No puedes bañarte dos veces en el mismo río.", author: "Heráclito", detail: "Filósofo griego · s. VI–V a.C." },
+  { text: "La vida sin examen no merece ser vivida.", author: "Sócrates", detail: "Filósofo griego · s. V a.C." },
+  { text: "Cogito, ergo sum. Pienso, luego existo.", author: "René Descartes", detail: "Filósofo francés · 1596–1650" },
+  { text: "El hombre está condenado a ser libre.", author: "Jean-Paul Sartre", detail: "Filósofo francés · 1905–1980" },
+  { text: "La existencia precede a la esencia.", author: "Jean-Paul Sartre", detail: "Filósofo francés · 1905–1980" },
+  { text: "Dios ha muerto. Y nosotros lo hemos matado.", author: "Friedrich Nietzsche", detail: "Filósofo alemán · 1844–1900" },
+  { text: "Lo que no me mata me hace más fuerte.", author: "Friedrich Nietzsche", detail: "Filósofo alemán · 1844–1900" },
+  { text: "Sin música, la vida sería un error.", author: "Friedrich Nietzsche", detail: "Filósofo alemán · 1844–1900" },
+  { text: "El tiempo es la imagen móvil de la eternidad inmóvil.", author: "Platón", detail: "Filósofo griego · 427–347 a.C." },
+  { text: "La necesidad es la madre de la invención.", author: "Platón", detail: "Filósofo griego · 427–347 a.C." },
+  { text: "Actúa solo según aquella máxima que puedas querer que sea ley universal.", author: "Immanuel Kant", detail: "Filósofo alemán · 1724–1804" },
+  { text: "El cielo estrellado sobre mí, la ley moral dentro de mí.", author: "Immanuel Kant", detail: "Filósofo alemán · 1724–1804" },
+  { text: "La libertad es la conciencia de la necesidad.", author: "Georg Wilhelm Friedrich Hegel", detail: "Filósofo alemán · 1770–1831" },
+  { text: "El todo es más que la suma de sus partes.", author: "Aristóteles", detail: "Filósofo griego · 384–322 a.C." },
+  { text: "En la duda, abstente.", author: "Zoroastro", detail: "Profeta iraní · s. X a.C." },
+  { text: "El mayor de los imperios es el imperio sobre uno mismo.", author: "Marco Aurelio", detail: "Filósofo estoico · 121–180 d.C." },
+  { text: "La fortuna ayuda a los audaces.", author: "Virgilio", detail: "Poeta latino · 70–19 a.C." },
+  { text: "No es pobre quien tiene poco, sino quien desea mucho.", author: "Séneca", detail: "Filósofo estoico · 4 a.C.–65 d.C." },
+  { text: "Piensa en cuánto tiempo llevas aplazando estas cosas.", author: "Marco Aurelio", detail: "Filósofo estoico · 121–180 d.C." },
+  { text: "Nunca será feliz quien se atormenta por no tener más.", author: "Séneca", detail: "Filósofo estoico · 4 a.C.–65 d.C." },
+  { text: "El sabio no hace nada de lo que pueda arrepentirse.", author: "Epicuro", detail: "Filósofo griego · 341–270 a.C." },
+  { text: "La sabiduría comienza en la admiración.", author: "Sócrates", detail: "Filósofo griego · s. V a.C." },
+  { text: "Prefiero fracasar con honor que triunfar con engaño.", author: "Sófocles", detail: "Dramaturgo griego · 496–406 a.C." },
+  { text: "No hay viento favorable para el que no sabe a qué puerto va.", author: "Séneca", detail: "Filósofo estoico · 4 a.C.–65 d.C." },
+  { text: "La mejor venganza es no parecerse al que te hizo daño.", author: "Marco Aurelio", detail: "Filósofo estoico · 121–180 d.C." },
+  { text: "El hombre es un animal político.", author: "Aristóteles", detail: "Filósofo griego · 384–322 a.C." },
+  { text: "La razón es, y solo debe ser, esclava de las pasiones.", author: "David Hume", detail: "Filósofo escocés · 1711–1776" },
+  { text: "Saber que no se sabe nada es el comienzo del saber.", author: "Sócrates", detail: "Filósofo griego · s. V a.C." },
+  { text: "El dolor es inevitable, el sufrimiento es opcional.", author: "Buda", detail: "Filósofo y maestro espiritual · s. V a.C." },
+  { text: "Nada es permanente excepto el cambio.", author: "Heráclito", detail: "Filósofo griego · s. VI–V a.C." },
+  { text: "El universo está en nosotros.", author: "Neil deGrasse Tyson", detail: "Astrofísico · 1958–" },
+  { text: "La imaginación es más importante que el conocimiento.", author: "Albert Einstein", detail: "Físico y pensador · 1879–1955" },
+  { text: "Si quieres ir rápido, camina solo. Si quieres llegar lejos, camina acompañado.", author: "Proverbio africano", detail: "Sabiduría popular" },
+  { text: "No llores porque terminó, sonríe porque sucedió.", author: "Gabriel García Márquez", detail: "Escritor colombiano · 1927–2014" },
+  { text: "Ser o no ser, esa es la cuestión.", author: "William Shakespeare", detail: "Dramaturgo inglés · 1564–1616" },
+  { text: "El infierno son los otros.", author: "Jean-Paul Sartre", detail: "Filósofo francés · 1905–1980" },
+  { text: "La belleza está en los ojos del que mira.", author: "Platón", detail: "Filósofo griego · 427–347 a.C." },
+  { text: "Lo que sabemos es una gota; lo que ignoramos, un océano.", author: "Isaac Newton", detail: "Científico y filósofo · 1643–1727" },
+  { text: "El silencio es el idioma de todos los grandes trabajos.", author: "Leonardo da Vinci", detail: "Polímata italiano · 1452–1519" },
+  { text: "La duda es el origen de la sabiduría.", author: "René Descartes", detail: "Filósofo francés · 1596–1650" },
+  { text: "Conoce a tu enemigo y conócete a ti mismo, y ganarás mil batallas.", author: "Sun Tzu", detail: "Estratega chino · s. V a.C." },
+  { text: "El hombre que mueve montañas comienza cargando pequeñas piedras.", author: "Confucio", detail: "Filósofo chino · 551–479 a.C." },
+  { text: "Nuestra mayor gloria no es nunca caer, sino levantarnos cada vez que caemos.", author: "Confucio", detail: "Filósofo chino · 551–479 a.C." },
+  { text: "La vida es aquello que te pasa mientras estás ocupado haciendo otros planes.", author: "John Lennon", detail: "Músico y poeta · 1940–1980" },
+  { text: "En el principio era el Verbo.", author: "Juan Evangelista", detail: "Evangelio de Juan · s. I d.C." },
+  { text: "El coraje no es la ausencia de miedo, sino el juicio de que algo más es importante.", author: "Ambrose Redmoon", detail: "Escritor estadounidense · 1933–1996" },
+  { text: "La única forma de hacer un gran trabajo es amar lo que haces.", author: "Steve Jobs", detail: "Empresario y visionario · 1955–2011" },
+  { text: "Sé el cambio que deseas ver en el mundo.", author: "Mahatma Gandhi", detail: "Líder y filósofo · 1869–1948" },
+  { text: "La mente es su propio lugar y puede hacer del cielo un infierno y del infierno un cielo.", author: "John Milton", detail: "Poeta inglés · 1608–1674" },
+  { text: "Cada uno de nosotros es responsable de todo ante todos.", author: "Fiódor Dostoyevski", detail: "Escritor ruso · 1821–1881" },
+  { text: "El pasado ya fue, el futuro aún no es. Solo existe el eterno presente.", author: "Buda", detail: "Filósofo y maestro espiritual · s. V a.C." },
+  { text: "No es la especie más fuerte la que sobrevive, sino la más adaptable.", author: "Charles Darwin", detail: "Naturalista inglés · 1809–1882" },
+  { text: "Si no puedes explicarlo de forma sencilla, es que no lo entiendes bien.", author: "Albert Einstein", detail: "Físico y pensador · 1879–1955" },
+  { text: "La locura es hacer la misma cosa una y otra vez esperando resultados diferentes.", author: "Atribuida a Einstein", detail: "Aforismo popular" },
+  { text: "El que no sabe y no sabe que no sabe es un necio. Evítalo.", author: "Proverbio árabe", detail: "Sabiduría oriental" },
+  { text: "La justicia sin fuerza es impotente; la fuerza sin justicia es tiránica.", author: "Blaise Pascal", detail: "Filósofo francés · 1623–1662" },
+  { text: "El corazón tiene razones que la razón no comprende.", author: "Blaise Pascal", detail: "Filósofo francés · 1623–1662" },
+  { text: "Todo lo que puede ser concebido puede ser logrado.", author: "Jules Verne", detail: "Escritor y visionario · 1828–1905" },
+  { text: "El arte es la mentira que nos hace comprender la verdad.", author: "Pablo Picasso", detail: "Artista y pensador · 1881–1973" },
+  { text: "Donde no hay esperanza, es preciso inventarla.", author: "Albert Camus", detail: "Filósofo francés · 1913–1960" },
+  { text: "Hay que imaginar a Sísifo feliz.", author: "Albert Camus", detail: "Filósofo francés · 1913–1960" },
+  { text: "No pidas que lo que sucede suceda como tú quieres, sino desea que lo que sucede sea como es.", author: "Epicteto", detail: "Filósofo estoico · 55–135 d.C." },
+];
+
+function getFraseDelDia() {
+  const hoy = new Date();
+  const inicio = new Date(hoy.getFullYear(), 0, 0);
+  const diff = hoy - inicio;
+  const unDia = 1000 * 60 * 60 * 24;
+  const diaDelAnio = Math.floor(diff / unDia);
+  return FRASES[diaDelAnio % FRASES.length];
+}
+
+function init() {
+  const frase = getFraseDelDia();
+  document.getElementById('quote-text').textContent = frase.text;
+  document.getElementById('quote-author').textContent = frase.author;
+  document.getElementById('quote-detail').textContent = frase.detail;
+
+  const hoy = new Date();
+  const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('fecha').textContent = hoy.toLocaleDateString('es-ES', opciones);
+
+  const diaAnio = Math.floor((hoy - new Date(hoy.getFullYear(), 0, 0)) / 86400000);
+  document.getElementById('day-counter').textContent = `Día ${diaAnio} del año`;
+
+  // Comprobar estado notificaciones
+  if ('Notification' in window) {
+    if (Notification.permission === 'granted') {
+      mostrarEstadoOk();
+    }
+  } else {
+    document.getElementById('notif-status').textContent = 'Notificaciones no disponibles en este navegador';
+  }
+
+  // Registrar service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+}
+
+function mostrarEstadoOk() {
+  document.getElementById('btn-notif').innerHTML = '<span>✦ Notificación diaria activa</span>';
+  document.getElementById('btn-notif').style.borderColor = 'var(--gold)';
+  document.getElementById('notif-status').textContent = 'Recibirás una frase cada noche a las 00:00';
+  document.getElementById('notif-status').classList.add('ok');
+}
+
+async function activarNotificaciones() {
+  if (!('Notification' in window)) {
+    mostrarToast('Tu navegador no soporta notificaciones');
+    return;
+  }
+
+  if (!('serviceWorker' in navigator)) {
+    mostrarToast('Instala la app para activar notificaciones');
+    return;
+  }
+
+  const permiso = await Notification.requestPermission();
+
+  if (permiso === 'granted') {
+    const reg = await navigator.serviceWorker.ready;
+    // Programar primera notificación de prueba
+    reg.active?.postMessage({ type: 'SCHEDULE' });
+    mostrarEstadoOk();
+    mostrarToast('✦ Notificación activada. ¡Nos vemos esta noche!');
+  } else {
+    mostrarToast('Permiso denegado. Actívalo en ajustes del navegador.');
+  }
+}
+
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+init();
+</script>
+</body>
+</html>
